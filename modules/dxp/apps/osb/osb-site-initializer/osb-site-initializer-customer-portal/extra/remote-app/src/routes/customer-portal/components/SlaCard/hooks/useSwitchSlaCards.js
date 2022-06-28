@@ -19,7 +19,8 @@ export default function useSwitchSlaCards(memoizedSlaCards) {
 
 		if (memoizedSlaCards[nextPosition]) {
 			setCurrentSlaCardPosition(nextPosition);
-		} else {
+		}
+		else {
 			setCurrentSlaCardPosition(0);
 		}
 	};
