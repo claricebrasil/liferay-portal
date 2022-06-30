@@ -17,82 +17,69 @@ import i18n from '../../../../../../common/I18n';
 import {SLA_TYPES} from '../../../../../../common/utils/constants';
 import getKebabCase from '../../../../../../common/utils/getKebabCase';
 
-const SlaCardLayout = ({
-	slaDateEnd,
-	slaDateStart,
-	slaLabel,
-	slaSelected,
-	slaTitle,
-}) => {
-	const slaDate = `${slaDateStart} - ${slaDateEnd}`;
-
-	return (
-		<div
-			className={classNames('align-items-center d-flex', {
-				'cp-sla-card': !slaSelected,
-				'cp-sla-card-active': slaSelected,
+const SlaCardLayout = ({endDate, label, selected, startDate, title}) => (
+	<div
+		className={classNames('align-items-center d-flex', {
+			'cp-sla-card': !selected,
+			'cp-sla-card-active': selected,
+		})}
+	>
+		<ClayCard
+			className={classNames('m-0 p-3 rounded-lg', {
+				'bg-brand-secondary-lighten-6 cp-sla-gold':
+					title === SLA_TYPES.gold,
+				'bg-neutral-0 cp-sla-limited': title === SLA_TYPES.limited,
+				'cp-sla-platinum': title === SLA_TYPES.platinum,
 			})}
 		>
-			<ClayCard
-				className={classNames('m-0 p-3 rounded-lg', {
-					'bg-brand-secondary-lighten-6 cp-sla-gold':
-						slaTitle === SLA_TYPES.gold,
-					'bg-neutral-0 cp-sla-limited':
-						slaTitle === SLA_TYPES.limited,
-					'cp-sla-platinum': slaTitle === SLA_TYPES.platinum,
-				})}
-			>
-				<ClayCard.Row className="align-items-center d-flex justify-content-between">
-					<div
-						className={classNames('h5 mb-0', {
-							'text-brand-primary-darken-2':
-								slaTitle === SLA_TYPES.limited,
-							'text-brand-secondary-darken-3':
-								slaTitle === SLA_TYPES.gold,
-							'text-neutral-7': slaTitle === SLA_TYPES.platinum,
-						})}
-					>
-						{i18n.translate(getKebabCase(slaTitle))}
-					</div>
-
-					<div>
-						<ClayCard.Caption>
-							<ClayLabel
-								className={classNames(
-									'mr-0 p-0 text-small-caps cp-sla-label',
-									{
-										'label-borderless-dark text-neutral-7':
-											slaTitle === SLA_TYPES.platinum,
-										'label-borderless-primary text-brand-primary-darken-2':
-											slaTitle === SLA_TYPES.limited,
-										'label-borderless-secondary text-brand-secondary-darken-3':
-											slaTitle === SLA_TYPES.gold,
-									}
-								)}
-								displayType="secundary"
-							>
-								{i18n.translate(getKebabCase(slaLabel))}
-							</ClayLabel>
-						</ClayCard.Caption>
-					</div>
-				</ClayCard.Row>
-
-				<ClayCard.Description
-					className={classNames('', {
+			<ClayCard.Row className="align-items-center d-flex justify-content-between">
+				<div
+					className={classNames('h5 mb-0', {
 						'text-brand-primary-darken-2':
-							slaTitle === SLA_TYPES.limited,
+							title === SLA_TYPES.limited,
 						'text-brand-secondary-darken-3':
-							slaTitle === SLA_TYPES.gold,
-						'text-neutral-6': slaTitle === SLA_TYPES.platinum,
+							title === SLA_TYPES.gold,
+						'text-neutral-7': title === SLA_TYPES.platinum,
 					})}
-					displayType="text"
-					truncate={false}
 				>
-					{slaDate}
-				</ClayCard.Description>
-			</ClayCard>
-		</div>
-	);
-};
+					{i18n.translate(getKebabCase(title))}
+				</div>
+
+				<div>
+					<ClayCard.Caption>
+						<ClayLabel
+							className={classNames(
+								'mr-0 p-0 text-small-caps cp-sla-label',
+								{
+									'label-borderless-dark text-neutral-7':
+										title === SLA_TYPES.platinum,
+									'label-borderless-primary text-brand-primary-darken-2':
+										title === SLA_TYPES.limited,
+									'label-borderless-secondary text-brand-secondary-darken-3':
+										title === SLA_TYPES.gold,
+								}
+							)}
+							displayType="secundary"
+						>
+							{i18n.translate(getKebabCase(label))}
+						</ClayLabel>
+					</ClayCard.Caption>
+				</div>
+			</ClayCard.Row>
+
+			<ClayCard.Description
+				className={classNames({
+					'text-brand-primary-darken-2': title === SLA_TYPES.limited,
+					'text-brand-secondary-darken-3': title === SLA_TYPES.gold,
+					'text-neutral-6': title === SLA_TYPES.platinum,
+				})}
+				displayType="text"
+				truncate={false}
+			>
+				{startDate} - {endDate}
+			</ClayCard.Description>
+		</ClayCard>
+	</div>
+);
 
 export default SlaCardLayout;

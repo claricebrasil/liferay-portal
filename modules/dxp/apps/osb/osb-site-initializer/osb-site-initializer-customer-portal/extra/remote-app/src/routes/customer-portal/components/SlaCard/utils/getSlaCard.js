@@ -9,15 +9,14 @@
  * distribution rights of the Software.
  */
 
-import ClayIcon from '@clayui/icon';
-import React from 'react';
+import {FORMAT_DATE} from '../../../../../common/utils/constants/slaCardDate';
+import getDateCustomFormat from '../../../../../common/utils/getDateCustomFormat';
 
-const SwitchSlaCardsButton = ({handleClick}) => (
-	<button
-		className="btn btn-outline-primary d-none hide ml-3 position-relative rounded-circle"
-		onClick={handleClick}
-	>
-		<ClayIcon symbol="angle-right" />
-	</button>
-);
-export default SwitchSlaCardsButton;
+export default function getSlaCard(endDate, startDate, title, label) {
+	return {
+		endDate: getDateCustomFormat(endDate, FORMAT_DATE, 'en-US'),
+		label,
+		startDate: getDateCustomFormat(startDate, FORMAT_DATE, 'en-US'),
+		title: title.split(' ')[0],
+	};
+}

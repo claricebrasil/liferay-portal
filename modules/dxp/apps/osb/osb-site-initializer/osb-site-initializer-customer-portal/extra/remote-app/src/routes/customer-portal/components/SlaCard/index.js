@@ -13,24 +13,22 @@ import classNames from 'classnames';
 import i18n from '../../../../common/I18n';
 import SlaCardLayout from './components/SlaCardLayout';
 import SwitchSlaCardsButton from './components/SwitchSlaCardButton';
-import useGetSlaData from './hooks/useGetSlaData';
-import useSwitchSlaCards from './hooks/useSwitchSlaCards';
+import useCardPosition from './hooks/useCardPosition';
+import useSlaCards from './hooks/useSlaCards';
 
-const SlaCard = ({project}) => {
-	const {memoizedSlaCards} = useGetSlaData(project);
-	const {currentSlaCardPosition, handleSlaCardClick} = useSwitchSlaCards(
-		memoizedSlaCards
-	);
+const SlaCard = ({koroneikiAccount}) => {
+	const slaCards = useSlaCards(koroneikiAccount);
+	const {changePosition, currentPosition} = useCardPosition();
 
 	return (
 		<div className="cp-sla-container position-absolute">
 			<h5 className="mb-4">{i18n.translate('support-level')}</h5>
 
-			{memoizedSlaCards?.length ? (
+			{slaCards.length ? (
 				<div>
 					<div
 						className={classNames({
-							'ml-2': memoizedSlaCards.length > 1,
+							'ml-2': slaCards.length > 1,
 						})}
 					>
 						<div
@@ -38,28 +36,23 @@ const SlaCard = ({project}) => {
 								'align-items-center d-flex cp-sla-card-holder',
 								{
 									'cp-sla-multiple-card ml-2':
-										memoizedSlaCards.length > 1,
+										slaCards.length > 1,
 								}
 							)}
 						>
-							{memoizedSlaCards.map((sla, index) => (
+							{slaCards.map((slaCard, index) => (
 								<SlaCardLayout
-									key={sla.title}
-									slaDateEnd={sla.endDate}
-									slaDateStart={sla.startDate}
-									slaLabel={sla.label}
-									slaSelected={
-										currentSlaCardPosition === index
-									}
-									slaTitle={sla.title}
+									key={slaCard.title}
+									selected={currentPosition === index}
+									{...slaCard}
 								/>
 							))}
 						</div>
 					</div>
 
-					{memoizedSlaCards.length > 1 && (
+					{slaCards.length > 1 && (
 						<SwitchSlaCardsButton
-							handleSlaCardClick={handleSlaCardClick}
+							handleClick={changePosition(slaCards)}
 						/>
 					)}
 				</div>

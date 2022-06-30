@@ -11,19 +11,18 @@
 
 import {useState} from 'react';
 
-export default function useSwitchSlaCards(memoizedSlaCards) {
-	const [currentSlaCardPosition, setCurrentSlaCardPosition] = useState(0);
+export default function useCardPosition() {
+	const [currentPosition, setCurrentPosition] = useState(0);
 
-	const handleSlaCardClick = () => {
-		const nextPosition = currentSlaCardPosition + 1;
+	const changePosition = (slaCards) => {
+		const nextPosition = currentPosition + 1;
 
-		if (memoizedSlaCards[nextPosition]) {
-			setCurrentSlaCardPosition(nextPosition);
-		}
-		else {
-			setCurrentSlaCardPosition(0);
+		if (slaCards[nextPosition]) {
+			setCurrentPosition(nextPosition);
+		} else {
+			setCurrentPosition(0);
 		}
 	};
 
-	return {currentSlaCardPosition, handleSlaCardClick};
+	return {changePosition, currentPosition};
 }
