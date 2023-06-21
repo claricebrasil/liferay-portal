@@ -1,6 +1,27 @@
 .provide-app-build-page {
 	&-container {
 		width: 37.5rem;
+
+	&-select {
+		border: 1px solid #e2e2e4;
+		border-radius: 0.375rem;
+		width: 37.5rem;
+
+		&-button {
+			background-color: #edf3fe;
+			border: none;
+			border-radius: 0.375rem;
+			color: #0053f0;
+			margin-bottom: 0.5rem;
+			padding: 0.375rem 0.75rem;
+
+			&:hover {
+				background-color: #edf3fe;
+				border: 1px solid #0053f0;
+				color: #0053f0;
+			}
+		}
+	}
 	}
 
 	&-app-build {
