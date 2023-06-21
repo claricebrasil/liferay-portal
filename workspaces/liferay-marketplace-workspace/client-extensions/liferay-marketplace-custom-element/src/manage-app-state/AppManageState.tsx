@@ -43,6 +43,7 @@ export interface InitialStateProps {
 	appVersion: string;
 	appWorkflowStatusInfo: string;
 	buildZIPFiles: UploadedFile[];
+	buildJARorWARFiles: UploadedFile[];
 	catalogId: number;
 	dayTrial: string;
 	gravatarAPI: string;

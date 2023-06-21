@@ -94,6 +94,11 @@ export function appReducer(state: InitialStateProps, action: TAction) {
 
 			return {...state, catalogId};
 		}
+		case TYPES.UPLOAD_BUILD_JAR_OR_WAR_FILES: {
+			const buildJARorWARFiles = action.payload.files;
+
+			return {...state, buildJARorWARFiles};
+		}
 		case TYPES.UPLOAD_BUILD_ZIP_FILES: {
 			const buildZIPFiles = action.payload.files;
 
