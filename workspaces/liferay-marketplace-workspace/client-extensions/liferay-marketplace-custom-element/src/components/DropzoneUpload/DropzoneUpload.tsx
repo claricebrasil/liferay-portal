@@ -25,6 +25,7 @@ interface DropzoneUploadProps {
 	};
 	buttonText: string;
 	description: string;
+	isCloudApp: boolean;
 	maxFiles: number;
 	maxSize?: number;
 	multiple: boolean;
@@ -36,6 +37,7 @@ export function DropzoneUpload({
 	acceptFileTypes,
 	buttonText,
 	description,
+	isCloudApp,
 	maxFiles,
 	maxSize,
 	multiple,
@@ -51,6 +53,7 @@ export function DropzoneUpload({
 			onDropAccepted={onHandleUpload}
 		>
 			{({getInputProps, getRootProps, isDragActive, isDragReject}) => (
+				
 				<div
 					className={classnames('dropzone-upload-container', {
 						'dropzone-upload-container-active': isDragActive,
@@ -58,6 +61,8 @@ export function DropzoneUpload({
 					})}
 					{...getRootProps()}
 				>
+					
+					{isCloudApp && 
 					<div className="dropzone-upload-document-container">
 						<img
 							alt="Document icon"
@@ -65,6 +70,7 @@ export function DropzoneUpload({
 							src={documentIcon}
 						/>
 					</div>
+					}
 
 					<div className="dropzone-upload-text-container">
 						<span className="dropzone-upload-text">{title}</span>

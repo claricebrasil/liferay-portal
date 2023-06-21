@@ -43,6 +43,10 @@ import {
 import {submitBase64EncodedFile} from '../../utils/util';
 
 import './ProvideAppBuildPage.scss';
+
+import { useState } from 'react';
+
+import { CreateAppDXPVersion } from '../../components/CreateAppDXPVersion/CreateAppDXPVersion';
 import {getCompanyId} from '../../liferay/constants';
 
 interface ProvideAppBuildPageProps {
@@ -50,18 +54,29 @@ interface ProvideAppBuildPageProps {
 	onClickContinue: () => void;
 }
 
-const acceptFileTypes = {
-	'application/zip': ['.zip'],
+const acceptFileTypesCloud = {
+	'application/zip': ['.zip']
 };
+
+const acceptFileTypesDxp = {
+	'application/jar': ['.jar'],
+	'application/war': ['.war']
+}
 
 export function ProvideAppBuildPage({
 	onClickBack,
 	onClickContinue,
 }: ProvideAppBuildPageProps) {
 	const [
-		{appBuild, appERC, appId, appProductId, appType, buildZIPFiles},
+		{appBuild, appERC, appId, appProductId, appType, buildJARorWARFiles, buildZIPFiles},
 		dispatch,
 	] = useAppContext();
+
+	const [isDxpVersionModalOpen, setIsDxpVersionModalOpen] = useState<boolean>(false);
+	const [selectedDxpVersion, setSelectedDxpVersion] = useState<boolean>(false);
+
+	const isCloudApp = appType.value === 'cloud';
+	const isDxpApp = appType.value === 'dxp';	
 
 	const handleUpload = (files: File[]) => {
 		const newUploadedFiles: UploadedFile[] = files.map((file) => ({
@@ -75,7 +90,7 @@ export function ProvideAppBuildPage({
 			uploaded: true,
 		}));
 
-		if (buildZIPFiles?.length) {
+		if (isCloudApp && buildZIPFiles?.length) {
 			dispatch({
 				payload: {
 					files: [...buildZIPFiles, ...newUploadedFiles],
@@ -83,7 +98,7 @@ export function ProvideAppBuildPage({
 				type: TYPES.UPLOAD_BUILD_ZIP_FILES,
 			});
 		}
-		else {
+		if (isCloudApp && !buildZIPFiles?.length) {
 			dispatch({
 				payload: {
 					files: newUploadedFiles,
@@ -91,17 +106,48 @@ export function ProvideAppBuildPage({
 				type: TYPES.UPLOAD_BUILD_ZIP_FILES,
 			});
 		}
+
+		if (isDxpApp && buildJARorWARFiles?.length) {
+			dispatch({
+				payload: {
+					files: [...buildJARorWARFiles, ...newUploadedFiles],
+				},
+				type: TYPES.UPLOAD_BUILD_JAR_OR_WAR_FILES,
+			});
+		} 
+		if (isDxpApp && !buildJARorWARFiles?.length) {
+			dispatch({
+				payload: {
+					files: newUploadedFiles,
+				},
+				type: TYPES.UPLOAD_BUILD_JAR_OR_WAR_FILES,
+			});
+		}
 	};
 
 	const handleDelete = (fileId: string) => {
-		const files = buildZIPFiles.filter((file) => file.id !== fileId);
 
-		dispatch({
-			payload: {
-				files,
-			},
-			type: TYPES.UPLOAD_BUILD_ZIP_FILES,
-		});
+		if (isCloudApp) {
+			const files = buildZIPFiles.filter((file) => file.id !== fileId);
+
+			dispatch({
+				payload: {
+					files,
+				},
+				type: TYPES.UPLOAD_BUILD_ZIP_FILES,
+			});
+		}
+
+		if (isDxpApp) {
+			const files = buildJARorWARFiles.filter((file) => file.id !== fileId)
+
+			dispatch({
+				payload: {
+					files,
+				},
+				type: TYPES.UPLOAD_BUILD_JAR_OR_WAR_FILES,
+			});
+		}
 	};
 
 	const updateCloudCompatibility = async () => {
@@ -231,7 +277,7 @@ export function ProvideAppBuildPage({
 			>
 				<div className="provide-app-build-page-cloud-compatible-container">
 					<RadioCard
-						description="Lorem ipsum dolor sit amet consectetur."
+						description="Create a Cloud app using client extensions."
 						icon={taskCheckedIcon}
 						onChange={() => {
 							dispatch({
@@ -255,7 +301,7 @@ export function ProvideAppBuildPage({
 					/>
 
 					<RadioCard
-						description="Lorem ipsum dolor sit amet consectetur."
+						description="Create a DXP app using a plugin package."
 						icon={cancelIcon}
 						onChange={() => {
 							dispatch({
@@ -308,7 +354,7 @@ export function ProvideAppBuildPage({
 					/>
 
 					<RadioCard
-						description="Use any local ZIP files to upload. Max file size is 500MB"
+						description={isCloudApp ? "Use any local ZIP files to upload. Max file size is 500MB" : "Please be sure to specify Liferay compatibility through the appropriate properties or XML files in your plugin. You can select multiple files for upload."}
 						icon={uploadIcon}
 						onChange={() => {
 							dispatch({
@@ -317,7 +363,7 @@ export function ProvideAppBuildPage({
 							});
 						}}
 						selected={appBuild === 'upload'}
-						title="Via ZIP Upload"
+						title={isCloudApp ? "Via ZIP Upload" : "Via Liferay Plugin Packages"}
 						tooltip={ReactDOMServer.renderToString(
 							<span>
 								ZIP Files must be in universal file format
@@ -342,32 +388,66 @@ export function ProvideAppBuildPage({
 			</Section>
 
 			<Section
-				description="Select a local file to upload"
-				label="Upload ZIP Files"
+				description={isCloudApp ? "Select a local file to upload" : "If the app is compatible with different updates of 7.4, please upload multiple packages for each update or update compatibility range."}
+				label={isCloudApp ? "Upload ZIP Files" : "Upload Liferay Plugin Packages"}
 				required
-				tooltip="You can upload one or many ZIP files. Max total size is 500MB."
+				tooltip={isCloudApp ? "You can upload one or many ZIP files. Max total size is 500MB." : "Liferay packages include JAR or WAR files."}
 				tooltipText="More Info"
 			>
 				<FileList
 					onDelete={handleDelete}
 					type="document"
-					uploadedFiles={buildZIPFiles ? buildZIPFiles : []}
+					uploadedFiles={isCloudApp && buildZIPFiles ? buildZIPFiles : isDxpApp && buildJARorWARFiles ? buildJARorWARFiles : []}
 				/>
 
+				{isDxpApp && selectedDxpVersion && (
+				<div className='provide-app-build-page-container-select'>
+					<>
+					<div className='align-items-center bg-light d-flex justify-content-between p-2 rounded'>
+						<h5>Liferay DXP 7.4 GA1</h5>
+
+						<button className='provide-app-build-page-container-select-button'>Select a file</button>
+					</div>
+
+						<DropzoneUpload
+						acceptFileTypes={isCloudApp ? acceptFileTypesCloud : acceptFileTypesDxp}
+						buttonText="Select a file"
+						description={isCloudApp ? "Only ZIP files are allowed. Max file size is 500MB " : "Only JAR, WAR files are allowed. Max file size is 500MB"}
+						isCloudApp={isCloudApp}
+						maxFiles={1}
+						maxSize={500000000}
+						multiple={false}
+						onHandleUpload={handleUpload}
+						title="Drag and drop to upload or"
+						/> 
+					</>
+				</div>
+				)}
+				
+
+				{isCloudApp && 
 				<DropzoneUpload
-					acceptFileTypes={acceptFileTypes}
+					acceptFileTypes={acceptFileTypesCloud}
 					buttonText="Select a file"
 					description="Only ZIP files are allowed. Max file size is 500MB "
+					isCloudApp={isCloudApp}
 					maxFiles={1}
 					maxSize={500000000}
 					multiple={false}
 					onHandleUpload={handleUpload}
 					title="Drag and drop to upload or"
-				/>
+				/> 
+				}
+				
+				{isDxpApp && 
+				<button className='mt-2 provide-app-build-page-container-select-button w-100' onClick={() => setIsDxpVersionModalOpen(true)}>+ Add Package(s)</button>
+				}
+
+
 			</Section>
 
 			<NewAppPageFooterButtons
-				disableContinueButton={!buildZIPFiles?.length}
+				disableContinueButton={isCloudApp ? !buildZIPFiles?.length : !buildJARorWARFiles?.length}
 				onClickBack={() => onClickBack()}
 				onClickContinue={() => {
 					const submitAppBuildType = async () => {
@@ -411,30 +491,57 @@ export function ProvideAppBuildPage({
 
 					submitAppBuildType();
 
-					buildZIPFiles.forEach(async (buildZIPFile) => {
-						const buildZIPFileId = await submitBase64EncodedFile({
-							appERC,
-							file: buildZIPFile.file,
-							requestFunction: createAttachment,
-							title: buildZIPFile.fileName,
-						});
+					{isCloudApp &&
+						buildZIPFiles.forEach(async (buildZIPFile) => {
+							const buildZIPFileId = await submitBase64EncodedFile({
+								appERC,
+								file: buildZIPFile.file,
+								requestFunction: createAttachment,
+								title: buildZIPFile.fileName,
+							});
+	
+							addExpandoValue({
+								attributeValues: {
+									'App Icon': 'No',
+								},
+								className:
+									'com.liferay.commerce.product.model.CPAttachmentFileEntry',
+								classPK: buildZIPFileId as number,
+								companyId: Number(getCompanyId()),
+								tableName: 'CUSTOM_FIELDS',
+							});
+						})
+					}
+					{isDxpApp &&
+						buildJARorWARFiles?.forEach(async (buildJARorWARFiles) => {
+							const buildJARorWARFileId = await submitBase64EncodedFile({
+								appERC,
+								file: buildJARorWARFiles.file,
+								requestFunction: createAttachment,
+								title: buildJARorWARFiles.fileName
+							});
 
-						addExpandoValue({
-							attributeValues: {
-								'App Icon': 'No',
-							},
-							className:
-								'com.liferay.commerce.product.model.CPAttachmentFileEntry',
-							classPK: buildZIPFileId as number,
-							companyId: Number(getCompanyId()),
-							tableName: 'CUSTOM_FIELDS',
-						});
-					});
+							addExpandoValue({
+								attributeValues: {
+									'App Icon': 'No',
+								},
+								className: 'com.liferay.commerce.product.model.CPAttachmentFileEntry',
+								classPK: buildJARorWARFileId as number,
+								companyId: Number(getCompanyId()),
+								tableName: 'CUSTOM_FIELDS',
+							})
+						})
+					}
 
 					onClickContinue();
 				}}
 				showBackButton
 			/>
+
+			{isDxpVersionModalOpen && (
+			<CreateAppDXPVersion handleClose={() => setIsDxpVersionModalOpen(false)} setSelectedDxpVersion={setSelectedDxpVersion}/>
+		)}
 		</div>
+		
 	);
 }

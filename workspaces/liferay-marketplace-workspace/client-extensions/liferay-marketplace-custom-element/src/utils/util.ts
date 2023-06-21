@@ -242,6 +242,9 @@ export async function submitBase64EncodedFile({
 				if (result?.includes('application/zip')) {
 					result = result?.substring(28);
 				}
+				else if (result?.includes('application/jar') || result?.includes('application/war')) {
+					result = result?.substring(28)
+				}
 				else if (
 					result?.includes('image/gif') ||
 					result?.includes('image/png')
@@ -251,6 +254,7 @@ export async function submitBase64EncodedFile({
 				else if (result?.includes('image/jpeg')) {
 					result = result?.substring(23);
 				}
+				
 
 				if (result) {
 					const {id} = await submitFile({
