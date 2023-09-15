@@ -302,7 +302,7 @@ export function GetAppModal({handleClose}: GetAppModalProps) {
 							}
 						);
 
-						if (attachmentsCustomField[0] === 'Yes') {
+						if (attachmentsCustomField[0].toLowerCase() === 'yes') {
 							return currentAttachment;
 						}
 						else {
