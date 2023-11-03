@@ -33,7 +33,7 @@ export interface PurchasedAppProps {
 	project?: string;
 	provisioning: string;
 	provisioningLabel: string;
-	purchasedBy: string;
+	purchasedBy?: string;
 	purchasedDate: string;
 	thumbnail: string;
 	type: string;

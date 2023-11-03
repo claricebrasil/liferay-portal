@@ -11,7 +11,6 @@ import './PurchasedAppsDashboardTableRow.scss';
 
 import DropDown from '@clayui/drop-down/lib/DropDown';
 import {ClayTooltipProvider} from '@clayui/tooltip';
-import classNames from 'classnames';
 import {useNavigate} from 'react-router-dom';
 
 import {OrderStatus} from '../../enums/OrderStatus';
@@ -19,6 +18,7 @@ import {orderType} from '../../enums/orderType';
 import i18n from '../../i18n';
 import {PurchasedAppProps} from '../../pages/PurchasedAppsDashboard/PurchasedAppsDashboardOutlet';
 import {showAppImage} from '../../utils/util';
+import LabelStatus from '../LabelStatus/LabelStatus';
 
 interface PurchasedAppsDashboardTableRowProps {
 	item: PurchasedAppProps;
@@ -51,7 +51,7 @@ export function PurchasedAppsDashboardTableRow({
 	return (
 		<ClayTable.Row
 			className="dashboard-table-row"
-			onClick={() => navigate(`/app/${productId}`)}
+			onClick={() => navigate(`/app/${productId}/order/${orderId}`, {state: {item}})}
 		>
 			<ClayTable.Cell>
 				<div className="dashboard-table-row-name-container">
@@ -118,25 +118,8 @@ export function PurchasedAppsDashboardTableRow({
 
 			<ClayTable.Cell>
 				<div className="dashboard-table-row-provisioning-container">
-					<ClayIcon
-						className={classNames(
-							'dashboard-table-row-provisioning-icon',
-							{
-								'dashboard-table-row-provisioning-icon-completed':
-									provisioningLabel === OrderStatus.COMPLETED,
-								'dashboard-table-row-provisioning-icon-pending':
-									provisioningLabel === OrderStatus.PENDING,
-								'dashboard-table-row-provisioning-icon-processing':
-									provisioningLabel ===
-									OrderStatus.PROCESSING,
-							}
-						)}
-						symbol="circle"
-					/>
 
-					<span className="dashboard-table-row-provisioning-text">
-						{provisioning}
-					</span>
+					<LabelStatus provisioning={provisioning} provisioningLabel={provisioningLabel} />
 				</div>
 			</ClayTable.Cell>
 
