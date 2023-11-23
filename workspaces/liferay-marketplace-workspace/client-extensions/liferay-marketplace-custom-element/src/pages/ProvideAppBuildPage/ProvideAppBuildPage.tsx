@@ -3,8 +3,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayButton from '@clayui/button';
+import ClayIcon from '@clayui/icon';
 import {filesize} from 'filesize';
 import {uniqueId} from 'lodash';
+import {useEffect, useState} from 'react';
 import ReactDOMServer from 'react-dom/server';
 
 import cancelIcon from '../../assets/icons/cancel_icon.svg';
@@ -16,8 +19,17 @@ import {DropzoneUpload} from '../../components/DropzoneUpload/DropzoneUpload';
 import {FileList, UploadedFile} from '../../components/FileList/FileList';
 import {Header} from '../../components/Header/Header';
 import {NewAppPageFooterButtons} from '../../components/NewAppPageFooterButtons/NewAppPageFooterButtons';
+import {PackageVersionModal} from '../../components/PackageVersionModal/PackageVersionModal';
 import {RadioCard} from '../../components/RadioCard/RadioCard';
 import {Section} from '../../components/Section/Section';
+import {ProductEditionOption} from '../../enums/ProductEditionOption';
+import {ProductSpecification} from '../../enums/ProductSpecification';
+import {ProductType} from '../../enums/ProductType';
+import {ProductUploadType} from '../../enums/ProductUploadType';
+import {ProductVersionOption} from '../../enums/ProductVersionOption';
+import {ProductVocabulary} from '../../enums/ProductVocabulary';
+import i18n from '../../i18n';
+import {getCompanyId} from '../../liferay/constants';
 import {useAppContext} from '../../manage-app-state/AppManageState';
 import {TYPES} from '../../manage-app-state/actionTypes';
 import {
@@ -32,21 +44,10 @@ import {
 	updateProductSpecification,
 } from '../../utils/api';
 import {submitBase64EncodedFile} from '../../utils/util';
-
-import './ProvideAppBuildPage.scss';
-
-import {useEffect, useState} from 'react';
-
-import {ProductEditionOption} from '../../enums/ProductEditionOption';
-import {ProductSpecification} from '../../enums/ProductSpecification';
-import {ProductType} from '../../enums/ProductType';
-import {ProductUploadType} from '../../enums/ProductUploadType';
-import {ProductVersionOption} from '../../enums/ProductVersionOption';
-import {ProductVocabulary} from '../../enums/ProductVocabulary';
-import i18n from '../../i18n';
-import {getCompanyId} from '../../liferay/constants';
 import OfferingTypeCheckbox from './components/OfferingTypeCheckbox';
 import {offeringTypesDescription} from './constants/offeringTypesDescriptions';
+
+import './ProvideAppBuildPage.scss';
 
 interface ProvideAppBuildPageProps {
 	onClickBack: () => void;
@@ -54,7 +55,8 @@ interface ProvideAppBuildPageProps {
 }
 
 const acceptFileTypes = {
-	'application/zip': ['.zip'],
+	'application/java-archive': ['.jar'],
+	'application/octet-stream': ['.war'],
 };
 
 export function ProvideAppBuildPage({
@@ -68,6 +70,8 @@ export function ProvideAppBuildPage({
 	const [selectedCheckboxValue, setSelectedCheckboxValue] = useState<
 		Array<string>
 	>([]);
+	const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
+	const [visibleModal, setVisibleModal] = useState(false);
 
 	const handleSelectCheckbox = (offeringTypelabel: string) => {
 		setSelectedCheckboxValue((prevValue) =>
@@ -379,7 +383,7 @@ export function ProvideAppBuildPage({
 
 					<RadioCard
 						description={i18n.translate(
-							'use-any-local-zip-files-to-upload-max-file-size-is-500-mb'
+							'please-be-sure-to-specify-liferay-compatibility-through-the-appropriate-properties-or-xml-files-in-your-plugin'
 						)}
 						icon={uploadIcon}
 						onChange={() => {
@@ -389,7 +393,7 @@ export function ProvideAppBuildPage({
 							});
 						}}
 						selected={appBuild === ProductUploadType.ZIP_UPLOAD}
-						title={i18n.translate('via-zip-upload')}
+						title={i18n.translate('via-liferay-plugin-packages')}
 						tooltip={ReactDOMServer.renderToString(
 							<span>
 								{i18n.translate(
@@ -406,32 +410,58 @@ export function ProvideAppBuildPage({
 			</Section>
 
 			<Section
-				description={i18n.translate('select-a-local-file-to-upload')}
-				label={i18n.translate('upload-zip-files')}
+				description={i18n.translate('if-the-app-is-compatible-with-different-updates-of-74-please-upload-multiple-packages-for-each-update-or-update-compatibility-range')}
+				label={i18n.translate('upload-liferay-plugin-packages')}
 				required
 				tooltip={i18n.translate(
-					'you-can-upload-one-or-many-zip-files-max-total-size-is-500-mb'
+					'only-jar-war-files-are-allowed-max-file-size-is-500mb.'
 				)}
 				tooltipText={i18n.translate('more-info')}
 			>
-				<FileList
-					onDelete={handleDelete}
-					type="document"
-					uploadedFiles={buildZIPFiles ? buildZIPFiles : []}
-				/>
+				{selectedVersions?.map((versionName, index) => (
+					<div className="mt-4 provide-app-build-page-dropzone-container" key={`container-${index}`}>
+						<div className="align-center d-flex font-weight-bold justify-content-between p-3 provide-app-build-page-dropzone-container-header">
+							<div>{versionName}</div>
+							<a href="/">Select a File</a>
+						</div>
 
-				<DropzoneUpload
-					acceptFileTypes={acceptFileTypes}
-					buttonText={i18n.translate('select-a-file')}
-					description={i18n.translate(
-						'only-zip-files-are-allowed-max-file-size-is-500-mb'
-					)}
-					maxFiles={1}
-					maxSize={500000000}
-					multiple={false}
-					onHandleUpload={handleUpload}
-					title={i18n.translate('drag-and-drop-to-upload-or')}
-				/>
+						<FileList
+							key={`files-${index}`}
+							onDelete={handleDelete}
+							type="document"
+							uploadedFiles={buildZIPFiles ? buildZIPFiles : []}
+						/>
+		
+						<DropzoneUpload
+							acceptFileTypes={acceptFileTypes}
+							buttonText="Select a file"
+							description={i18n.translate(
+								'only-jar-war-files-are-allowed-max-file-size-is-500mb.'
+							)}
+							key={`dropzone-${index}`}
+							maxFiles={1}
+							maxSize={500000000}
+							multiple={false}
+							onHandleUpload={handleUpload}
+							showDocumentIcon={false}
+							title="Drag and drop to upload or"
+						/>
+					</div>
+				))}
+
+				<ClayButton className="btn-block provide-app-build-page-add-package-button" displayType="secondary" onClick={() => setVisibleModal(true)}>
+					<ClayIcon className="mr-1" symbol="plus" />
+					Add Package(s)
+				</ClayButton>
+				
+				{visibleModal && 
+					<PackageVersionModal 
+						appERC={appERC}
+						currentVersions={selectedVersions}
+						handleClose={() => setVisibleModal(false)}
+						handleConfirm={setSelectedVersions}
+					/>
+				}
 			</Section>
 
 			<NewAppPageFooterButtons

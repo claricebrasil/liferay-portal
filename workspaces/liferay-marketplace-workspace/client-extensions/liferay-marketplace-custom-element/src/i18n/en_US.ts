@@ -36,6 +36,8 @@ export default {
 	'host-name': 'Host Name',
 	'i-certify-that-the-instances-activated-with-the-selected-activation-keys-have-been-shut-down-and-that-there-is-no-liferay-software-installed-deployed-used-or-executed-that-is-activated-with-the-selected-activation-key':
 		'I certify that the instances activated with the selected activation keys have been shut down and that there is no Liferay software installed, deployed, used or executed that is activated with the selected activation key.',
+	'if-the-app-is-compatible-with-different-updates-of-74-please-upload-multiple-packages-for-each-update-or-update-compatibility-range':
+		'If the app is compatible with different updates of 7.4, please upload multiple packages for each update or update compatibility range.',
 	'in-the-future-you-will-be-able-to-submit-your-app-directly-from-liferay-experience-cloud-projects':
 		'In the future, you will be able to submit your app directly from Liferay Experience Cloud projects.',
 	'in-the-future-you-will-be-able-to-submit-your-app-source-code-for-additional-support-and-partnership-opportunities-with-liferay':
@@ -56,8 +58,10 @@ export default {
 	'no': 'No',
 	'no-licenses-yet': 'No Licenses yet',
 	'no-results-found': 'No results found',
-	'only-zip-files-are-allowed-max-file-size-is-500-mb':
-		'Only ZIP files are allowed. Max file size is 500MB',
+	'only-jar-war-files-are-allowed-max-file-size-is-500mb':
+		'Only JAR, WAR files are allowed. Max file size is 500MB.',
+	'please-be-sure-to-specify-liferay-compatibility-through-the-appropriate-properties-or-xml-files-in-your-plugin':
+		'Please be sure to specify Liferay compatibility through the appropriate properties or XML files in your plugin.',
 	'provide-app-build': 'Provide app build',
 	'select-a-file': 'Select a file',
 	'select-a-local-file-to-upload': 'Select a local file to upload',
@@ -92,7 +96,7 @@ export default {
 		'This order must be completed before downloading this app.',
 	'unable-to-download-your-license-file-please-try-again-and-or-contact-support-via-the-manage-menu-on-the-dashboard':
 		'Unable to download your license file.  Please try again and/or contact support via the manage menu on the dashboard.',
-	'upload-zip-files': 'Upload ZIP Files',
+	'upload-liferay-plugin-packages': 'Upload Liferay Plugin Packages',
 	'use-any-build-from-any-available-liferay-experience-cloud-account-requires-lxc-account':
 		'Use any build from any available Liferay Experience Cloud account (requires LXC account) ',
 	'use-any-build-from-your-computer-connecting-with-a-github-provider':
@@ -104,7 +108,7 @@ export default {
 	'via-github-repo': 'Via GitHub Repo',
 	'via-liferay-experience-cloud-integration':
 		'Via Liferay Experience Cloud Integration',
-	'via-zip-upload': 'Via ZIP Upload',
+	'via-liferay-plugin-packages': 'Via Liferay Plugin Packages',
 	'yes': 'Yes',
 	'you-can-upload-one-or-many-zip-files-max-total-size-is-500-mb':
 		'You can upload one or many ZIP files. Max total size is 500MB.',
