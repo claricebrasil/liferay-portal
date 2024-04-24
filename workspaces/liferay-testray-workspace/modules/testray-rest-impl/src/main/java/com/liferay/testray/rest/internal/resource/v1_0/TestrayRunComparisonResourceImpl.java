@@ -324,15 +324,41 @@ public class TestrayRunComparisonResourceImpl
 		for (Map.Entry<String, Map<String, Serializable>> entry :
 				testrayCaseResultsMap1.entrySet()) {
 
+			Map<String, Serializable> testrayCaseResult =
+				testrayCaseResultsMap2.remove(entry.getKey());
+
+			if ((testrayCaseResult == null) &&
+				(Validator.isNotNull(testrayCaseResultError2) ||
+				 Validator.isNotNull(testrayCaseResultIssue2) ||
+				 (Validator.isNotNull(testrayCaseResultStatus2) &&
+				  !Objects.equals(
+					  testrayCaseResultStatus2.substring(
+						  testrayCaseResultStatus2.indexOf('\''),
+						  testrayCaseResultStatus2.length() - 2),
+					  "DIDNOTRUN")))) {
+
+				continue;
+			}
+
 			testrayCaseResultComparisons.add(
 				_getTestrayCaseResultComparison(
-					entry.getValue(),
-					testrayCaseResultsMap2.remove(entry.getKey()),
-					testrayComponentsMap));
+					entry.getValue(), testrayCaseResult, testrayComponentsMap));
 		}
 
 		for (Map.Entry<String, Map<String, Serializable>> entry :
 				testrayCaseResultsMap2.entrySet()) {
+
+			if (Validator.isNotNull(testrayCaseResultError1) ||
+				Validator.isNotNull(testrayCaseResultIssue1) ||
+				(Validator.isNotNull(testrayCaseResultStatus1) &&
+				 !Objects.equals(
+					 testrayCaseResultStatus1.substring(
+						 testrayCaseResultStatus1.indexOf('\''),
+						 testrayCaseResultStatus1.length() - 2),
+					 "DIDNOTRUN"))) {
+
+				continue;
+			}
 
 			testrayCaseResultComparisons.add(
 				_getTestrayCaseResultComparison(
